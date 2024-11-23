@@ -1,0 +1,96 @@
+O **AWS Rekognition** fornece uma funcionalidade chamada **"RecognizeCelebrities"** que permite identificar celebridades em imagens. A seguir, apresento um guia detalhado para usar essa funcionalidade:
+
+---
+
+### **1. Pré-requisitos**
+
+- **Conta AWS**: Certifique-se de ter uma conta com permissões para o AWS Rekognition.
+- **Chaves de Acesso IAM**: Crie um usuário IAM com permissões para o Rekognition (ex.: política `AmazonRekognitionFullAccess`).
+- **SDK de sua escolha**: O exemplo aqui usa o **AWS SDK for Python (Boto3)**.
+
+---
+
+### **2. Configuração do Ambiente**
+
+1. **Instale o Boto3**:
+   ```bash
+   pip install boto3
+   ```
+
+2. **Configure suas credenciais AWS**:
+   ```bash
+   aws configure
+   ```
+   Insira as credenciais (chave de acesso, chave secreta e região).
+
+---
+
+### **3. Detectando Celebridades em Imagens**
+
+#### **Exemplo de Código com Python**
+Aqui está um exemplo funcional para detectar celebridades:
+
+```python
+import boto3
+
+# Inicialize o cliente Rekognition
+rekognition_client = boto3.client('rekognition', region_name='us-east-1')  # Substitua pela sua região
+
+# Carregue a imagem
+image_path = "caminho_da_imagem.jpg"
+with open(image_path, "rb") as image_file:
+    image_bytes = image_file.read()
+
+# Detectar celebridades na imagem
+response = rekognition_client.recognize_celebrities(
+    Image={'Bytes': image_bytes}
+)
+
+# Processar os resultados
+if "CelebrityFaces" in response:
+    print("Celebridades detectadas:")
+    for celebrity in response["CelebrityFaces"]:
+        print(f"Nome: {celebrity['Name']}")
+        print(f"Confiança: {celebrity['MatchConfidence']:.2f}%")
+        print(f"Links externos: {celebrity.get('Urls', 'Nenhum')}")
+        print("-" * 30)
+else:
+    print("Nenhuma celebridade detectada.")
+```
+
+---
+
+### **4. Detalhes Importantes**
+
+- **Resposta da API**:
+  A resposta do método `recognize_celebrities` inclui:
+  - `CelebrityFaces`: Lista de celebridades detectadas com atributos como:
+    - `Name`: Nome da celebridade.
+    - `MatchConfidence`: Confiança da correspondência.
+    - `Urls`: Links externos relacionados (como páginas da Wikipedia).
+  - `UnrecognizedFaces`: Faces humanas detectadas, mas que não correspondem a celebridades.
+
+- **Formato de entrada**:
+  - Suporta imagens nos formatos JPEG e PNG.
+  - Limite de tamanho: até 5 MB para chamadas de API síncronas.
+
+---
+
+### **5. Usando a AWS CLI (Opcional)**
+
+Você pode testar a detecção de celebridades com a **AWS CLI**:
+
+1. Detectar celebridades:
+   ```bash
+   aws rekognition recognize-celebrities --image-bytes fileb://caminho_da_imagem.jpg
+   ```
+
+---
+
+### **6. Casos de Uso**
+
+- Identificar celebridades em fotos de eventos.
+- Aplicações de mídia e entretenimento para reconhecimento de figuras públicas.
+- Enriquecer metadados em bancos de dados de imagens.
+
+Se precisar de ajuda com algum detalhe do código ou configuração, é só perguntar! 🚀
